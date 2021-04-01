@@ -13,20 +13,34 @@ app.use(bodyParser.json());
 app.use(cors());
 
 client.connect(err => {
-  const productsCollection = client.db("emaJohnStore").collection("products");
-    
+    const productsCollection = client.db("emaJohnStore").collection("products");
+
     app.post('/addProduct', (req, res) => {
         const products = req.body;
         productsCollection.insertMany(products)
-        .then(result => {
-            console.log(result.insertedCount);
-            res.send(result.insertedCount)
-        })
+            .then(result => {
+                console.log(result.insertedCount);
+                res.send(result.insertedCount)
+            })
+    })
+
+    app.get('/products', (req, res) => {
+        productsCollection.find({}).limit(20)
+            .toArray((err, documents) => {
+                res.send(documents);
+            })
+    })
+
+    app.get('/product/:key', (req, res) => {
+        productsCollection.find({key: req.params.key})
+            .toArray((err, documents) => {
+                res.send(documents[0]);
+            })
     })
 });
 
 app.get('/', (req, res) => {
-  res.send('Hello World!')
+    res.send('Hello World!')
 })
 
 app.listen(5000)
